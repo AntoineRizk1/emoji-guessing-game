@@ -1,54 +1,411 @@
 <!DOCTYPE html>
 <html>
-    <head>
-       <title>Guess the Movie</title>
-    </head>
-    <body>
-        <center><h1>Guess the movie</h1>
-        <p>refer to the emoji</p>
-        <input type="text" placeholder="Enter your guess...">
-        <button onclick="checkGuess()">Guess</button>
+<head>
+<meta charset="UTF-8">
+<title>Guess The Movie</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:radial-gradient(circle at top,#0f172a,#020617);
+    color:white;
+}
+
+/* INTRO SCREEN */
+
+#intro{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+#intro h1{
+    font-size:4rem;
+    margin-bottom:20px;
+    text-shadow:0 0 20px cyan;
+}
+
+#intro h2{
+    color:#94a3b8;
+    margin-bottom:30px;
+}
+
+/* GAME SCREEN */
+
+#game{
+    display:none;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:90%;
+    max-width:700px;
+    padding:40px;
+    border-radius:25px;
+    text-align:center;
+
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(10px);
+
+    border:1px solid rgba(0,255,255,.3);
+
+    box-shadow:
+        0 0 25px rgba(0,255,255,.2);
+
+    animation:fadeIn .7s ease;
+}
+
+.container h1{
+    margin-bottom:25px;
+    font-size:2.5rem;
+}
+
+.stats{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+    font-size:1.2rem;
+    font-weight:bold;
+}
+
+.progress-container{
+    width:100%;
+    height:12px;
+    background:#1e293b;
+    border-radius:20px;
+    overflow:hidden;
+    margin-bottom:25px;
+}
+
+#progressBar{
+    width:0%;
+    height:100%;
+    background:cyan;
+    box-shadow:0 0 15px cyan;
+    transition:.5s;
+}
+
+.emoji{
+    font-size:6rem;
+    margin:30px 0;
+    animation:pulse 1.5s infinite;
+    text-shadow:
+        0 0 15px cyan,
+        0 0 35px cyan;
+}
+
+input{
+    width:100%;
+    padding:16px;
+    border-radius:12px;
+    border:2px solid cyan;
+    background:#111827;
+    color:white;
+    font-size:1.1rem;
+    margin-bottom:20px;
+}
+
+button{
+    padding:15px 30px;
+    border:none;
+    border-radius:12px;
+    background:cyan;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    font-size:1rem;
+    transition:.3s;
+    box-shadow:0 0 15px cyan;
+}
+
+button:hover{
+    transform:scale(1.05);
+    box-shadow:
+        0 0 20px cyan,
+        0 0 40px cyan;
+}
+
+#message{
+    margin-top:20px;
+    font-size:1.3rem;
+    font-weight:bold;
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.08);}
+    100%{transform:scale(1);}
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="intro">
+    <h1>🎬 Guess The Movie</h1>
+    <h2>Made by Antoine Rizk</h2>
+    <button onclick="startGame()">Start Game</button>
+</div>
+
+<div id="game">
+    <div class="container">
+
+        <h1>🎥 Guess The Movie</h1>
+
+        <div class="stats">
+            <div>🏆 Score: <span id="score">0</span></div>
+            <div>⏱ Time: <span id="timer">15</span></div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progressBar"></div>
+        </div>
+
+        <div id="emojiDisplay" class="emoji"></div>
+
+        <input
+            id="guessInput"
+            type="text"
+            placeholder="Enter movie name..."
+        >
+
+        <button onclick="checkGuess()">
+            Guess
+        </button>
+
         <p id="message"></p>
-        </center>
-        <script>
+
+    </div>
+</div>
+
+<script>
+
 const movies = [
-    { emoji: "🦁👑", answer: "the lion king" },
-    { emoji: "🧊👸❄️", answer: "frozen" },
-    { emoji: "🕷️🧑", answer: "spider man" },
-    { emoji: "🦇🤵", answer: "batman" },
-    { emoji: "🧙💍🌋", answer: "the lord of the rings" },
-    { emoji: "🚢🧊❤️", answer: "titanic" },
-    { emoji: "🦖🏝️", answer: "jurassic park" },
-    { emoji: "👻🚫", answer: "ghostbusters" },
-    { emoji: "🐠🔍", answer: "finding nemo" }
+{emoji:"🦁👑",answer:"lion king"},
+{emoji:"🧊👸❄️",answer:"frozen"},
+{emoji:"🕷️🧑",answer:"spiderman"},
+{emoji:"🦇🤵",answer:"batman"},
+{emoji:"🧙💍🌋",answer:"lord of the rings"},
+{emoji:"🚢🧊❤️",answer:"titanic"},
+{emoji:"🦖🏝️",answer:"jurassic park"},
+{emoji:"👻🚫",answer:"ghostbusters"},
+{emoji:"🐠🔍",answer:"finding nemo"},
+{emoji:"🤖🌎",answer:"wall e"},
+{emoji:"🚗⚡",answer:"cars"},
+{emoji:"🐼🥋",answer:"kung fu panda"},
+{emoji:"🐉👦",answer:"how to train your dragon"},
+{emoji:"🧜‍♀️🌊",answer:"little mermaid"},
+{emoji:"🏰👸🌹",answer:"beauty and the beast"},
+{emoji:"❄️⛄👭",answer:"frozen 2"},
+{emoji:"🎈🏠",answer:"up"},
+{emoji:"🐀👨‍🍳",answer:"ratatouille"},
+{emoji:"🧞‍♂️🕌",answer:"aladdin"},
+{emoji:"🦸‍♂️🛡️",answer:"captain america"},
+{emoji:"🪓⚡",answer:"thor"},
+{emoji:"🤖🦾",answer:"iron man"},
+{emoji:"🟢💥",answer:"the hulk"},
+{emoji:"🕶️💊",answer:"the matrix"},
+{emoji:"🚀🌌",answer:"interstellar"},
+{emoji:"🦍🏢",answer:"king kong"},
+{emoji:"🧑‍🚀🌕",answer:"apollo 13"},
+{emoji:"🏴‍☠️⚔️",answer:"pirates of the caribbean"},
+{emoji:"🪄⚡👦",answer:"harry potter"},
+{emoji:"🚂🍫",answer:"charlie and the chocolate factory"},
+{emoji:"🧸🤠🚀",answer:"toy story"},
+{emoji:"🦈🌊",answer:"jaws"},
+{emoji:"🤠🐍",answer:"indiana jones"},
+{emoji:"🕵️‍♂️007",answer:"james bond"},
+{emoji:"👨‍🚀🪐",answer:"the martian"},
+{emoji:"🐒🗽",answer:"planet of the apes"},
+{emoji:"🦇🃏",answer:"the dark knight"},
+{emoji:"🌌⚔️",answer:"star wars"},
+{emoji:"💍🌋",answer:"the fellowship of the ring"},
+{emoji:"🕷️🕸️🏙️",answer:"spider man 2"},
+{emoji:"🦸‍♂️⚒️🌩️",answer:"thor ragnarok"},
+{emoji:"🤖💥🤖",answer:"transformers"},
+{emoji:"🐧🐧🎵",answer:"happy feet"},
+{emoji:"🐘🎪",answer:"dumbo"},
+{emoji:"👹🏭",answer:"monsters inc"},
+{emoji:"🚪👹",answer:"monsters university"},
+{emoji:"🐜🐜",answer:"a bugs life"},
+{emoji:"🐟🐠🐡",answer:"finding dory"},
+{emoji:"🚀🤠🧸",answer:"toy story 2"},
+{emoji:"🦸‍♀️💨",answer:"the incredibles"},
+{emoji:"⌚👦👽",answer:"ben ten"}
 ];
 
 let currentMovie;
+let score = 0;
+let timeLeft = 15;
+let timer;
+let currentQuestion = 0;
+let availableMovies = [];
+const totalQuestions = movies.length;
 
-function newMovie() {
-    currentMovie = movies[Math.floor(Math.random() * movies.length)];
+function startGame(){
 
-    document.querySelector("p").textContent = currentMovie.emoji;
-    document.querySelector("input").value = "";
-    document.getElementById("message").textContent = "";
+    availableMovies = [...movies];
+
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("game").style.display = "flex";
+
+    newMovie();
 }
 
-function checkGuess() {
-    const guess = document.querySelector("input").value
+function startTimer(){
+
+    clearInterval(timer);
+
+    timeLeft = 15;
+
+    document.getElementById("timer").textContent = timeLeft;
+
+    timer = setInterval(()=>{
+
+        timeLeft--;
+
+        document.getElementById("timer").textContent = timeLeft;
+
+        if(timeLeft <= 0){
+
+            clearInterval(timer);
+
+            let answerToShow;
+
+if(currentMovie.answers){
+    answerToShow = currentMovie.answers[0];
+}else{
+    answerToShow = currentMovie.answer;
+}
+
+document.getElementById("message").textContent =
+"⏰ Time's Up! The answer was: " + answerToShow;
+
+setTimeout(newMovie,3000);
+        }
+
+    },1000);
+}
+
+function newMovie(){
+
+    currentQuestion++;
+
+    if(currentQuestion > totalQuestions){
+
+        clearInterval(timer);
+
+        document.querySelector(".container").innerHTML = `
+            <h1>🏆 Game Over</h1>
+            <h2>Final Score: ${score}/${totalQuestions}</h2>
+            <br><br>
+            <button onclick="location.reload()">
+                Play Again
+            </button>
+        `;
+
+        return;
+    }
+
+    if(availableMovies.length === 0){
+    availableMovies = [...movies];
+}
+
+const randomIndex =
+    Math.floor(Math.random() * availableMovies.length);
+
+currentMovie =
+    availableMovies[randomIndex];
+
+availableMovies.splice(randomIndex,1);
+
+    document.getElementById("emojiDisplay").textContent =
+        currentMovie.emoji;
+
+    document.getElementById("guessInput").value = "";
+
+    document.getElementById("message").textContent = "";
+
+   const progress =
+    (currentQuestion/totalQuestions)*100;
+
+    document.getElementById("progressBar").style.width =
+        progress + "%";
+
+    startTimer();
+}
+
+function checkGuess(){
+
+    const guess =
+        document.getElementById("guessInput")
+        .value
         .trim()
         .toLowerCase();
 
-    if (guess === currentMovie.answer.toLowerCase()) {
-        document.getElementById("message").innerHTML =
-            "✅ Correct! The movie was <b>" + currentMovie.answer + "</b>.";
-        setTimeout(newMovie, 2000);
-    } else {
+    let correct = false;
+
+    if(currentMovie.answers){
+
+        correct = currentMovie.answers.includes(guess);
+
+    }else{
+
+        correct =
+            guess === currentMovie.answer.toLowerCase();
+    }
+
+    if(correct){
+
+        clearInterval(timer);
+
+        score++;
+
+        document.getElementById("score").textContent =
+            score;
+
         document.getElementById("message").textContent =
-            "❌ Wrong guess! Try again.";
+            "✅ Correct!";
+
+        setTimeout(newMovie,1500);
+
+    }else{
+
+        document.getElementById("message").textContent =
+            "❌ Try Again!";
     }
 }
 
-newMovie();
+document.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+        checkGuess();
+    }
+});
+
 </script>
-    </body>
+
+</body>
 </html>
