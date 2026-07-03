@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <title>Guess the Movie</title>
+    </head>
+    <body>
+        <center><h1>Guess the movie</h1>
+        <p>refer to the emoji</p>
+        <input type="text" placeholder="Enter your guess...">
+        <button onclick="checkGuess()">Guess</button>
+        <p id="message"></p>
+        </center>
+        <script>
+const movies = [
+    { emoji: "🦁👑", answer: "the lion king" },
+    { emoji: "🧊👸❄️", answer: "frozen" },
+    { emoji: "🕷️🧑", answer: "spider man" },
+    { emoji: "🦇🤵", answer: "batman" },
+    { emoji: "🧙💍🌋", answer: "the lord of the rings" },
+    { emoji: "🚢🧊❤️", answer: "titanic" },
+    { emoji: "🦖🏝️", answer: "jurassic park" },
+    { emoji: "👻🚫", answer: "ghostbusters" },
+    { emoji: "🐠🔍", answer: "finding nemo" }
+];
+
+let currentMovie;
+
+function newMovie() {
+    currentMovie = movies[Math.floor(Math.random() * movies.length)];
+
+    document.querySelector("p").textContent = currentMovie.emoji;
+    document.querySelector("input").value = "";
+    document.getElementById("message").textContent = "";
+}
+
+function checkGuess() {
+    const guess = document.querySelector("input").value
+        .trim()
+        .toLowerCase();
+
+    if (guess === currentMovie.answer.toLowerCase()) {
+        document.getElementById("message").innerHTML =
+            "✅ Correct! The movie was <b>" + currentMovie.answer + "</b>.";
+        setTimeout(newMovie, 2000);
+    } else {
+        document.getElementById("message").textContent =
+            "❌ Wrong guess! Try again.";
+    }
+}
+
+newMovie();
+</script>
+    </body>
+</html>
